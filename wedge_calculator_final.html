@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>쐐기 길이 계산기 (모바일 최종 수정)</title>
+  <!-- 모바일 화면 대응 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* 간단한 리셋 & 반응형 레이아웃 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f0f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 1em;
+    }
+    p {
+      font-size: 0.9rem;
+      margin-bottom: 1em;
+      line-height: 1.4;
+    }
+    ul {
+      margin-left: 1.5em;
+      margin-bottom: 1em;
+      font-size: 0.9rem;
+    }
+    .form-group {
+      margin-bottom: 1em;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.4em;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.6em;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1rem;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 1em;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      color: #007bff;
+      min-height: 1.4em; /* 결과 영역 높이 확보 */
+    }
+  </style>
+
+  <script>
+    /*
+      5점 맞춤 로직 (수정 X):
+        (160,50)->188.3
+        (180,38)->212.1
+        (185,40)->216.9
+        (200,40)->232.9
+        (250,45)->284.6
+
+      Final(L,H) = 18.1351
+                  + 1.10333*L
+                  + 0.18450*H
+                  - 0.002463*(L*H)
+                  + 0.00016059*(L^2)
+
+      => 결과 정수 반올림
+    */
+    function calcWedge(L, H) {
+      const a = 18.1351;
+      const b = 1.10333;
+      const c = 0.18450;
+      const d = -0.002463;
+      const e = 0.00016059;
+      return a + b*L + c*H + d*(L*H) + e*(L*L);
+    }
+
+    function doCalculate() {
+      // 입력값 가져오기
+      const L = parseFloat(document.getElementById("L").value);
+      const H = parseFloat(document.getElementById("H").value);
+
+      // 만약 NaN이면 에러 메시지
+      if (isNaN(L) || isNaN(H)) {
+        document.getElementById("result").textContent = "유효한 숫자를 입력하세요!";
+        return;
+      }
+
+      // 계산
+      const val = calcWedge(L, H);
+
+      // 정수 반올림
+      const rounded = Math.round(val);
+
+      // 결과 표시
+      document.getElementById("result").textContent =
+        "최종 길이: " + rounded + " mm";
+    }
+
+    // DOM 로드 후 이벤트 연결
+    window.addEventListener('DOMContentLoaded', function(){
+      // "계산하기" 버튼 클릭 시 doCalculate() 실행
+      document.getElementById("calcBtn").addEventListener("click", doCalculate);
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>쐐기 길이 계산기 (모바일 최종)</h1>
+    <p>모바일에서 "계산하기"를 눌러도 초기화되거나 작동 안 하는 문제를 해결했습니다.</p>
+    <ul>
+      <li>(160,50) → 188.3 mm</li>
+      <li>(180,38) → 212.1 mm</li>
+      <li>(185,40) → 216.9 mm</li>
+      <li>(200,40) → 232.9 mm</li>
+      <li>(250,45) → 284.6 mm</li>
+    </ul>
+
+    <!-- 폼 없이, 단순 div -->
+    <div class="form-group">
+      <label for="L">가로 (L, mm)</label>
+      <input type="number" id="L" step="any" value="195">
+    </div>
+    <div class="form-group">
+      <label for="H">세로 (H, mm)</label>
+      <input type="number" id="H" step="any" value="35">
+    </div>
+
+    <!-- 버튼에 id="calcBtn", 이벤트 리스너로 JS 연결 -->
+    <button id="calcBtn">계산하기</button>
+
+    <div id="result"></div>
+  </div>
+</body>
+</html>
